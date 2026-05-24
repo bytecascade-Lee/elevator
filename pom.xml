@@ -41,7 +41,7 @@
 
         <!-- 最终发布目录 -->
         <dist.dir>${project.basedir}/dist</dist.dir>
-        <dist.mine.jar.dir>${dist.dir}</dist.mine.jar.dir>
+        <dist.mine.jar.dir>${dist.dir}/lib</dist.mine.jar.dir>
         <dist.jre.dir>${dist.dir}/jre</dist.jre.dir>
         <dist.portable.zip.dir>${dist.dir}</dist.portable.zip.dir>
 
@@ -145,7 +145,7 @@
                             <jar>${project.build.finalName}.jar</jar>
                             <icon>${build.icons.dir}/app.ico</icon>
                             <dontWrapJar>true</dontWrapJar>
-                            <chdir>.</chdir>
+                            <chdir>./lib</chdir>
 
                             <versionInfo>
                                 <fileVersion>${app.version}</fileVersion>
