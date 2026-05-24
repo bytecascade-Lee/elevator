@@ -167,7 +167,7 @@
                                 <mutexName>${app.artifactId}</mutexName>
                                 <windowTitle>${app.name}</windowTitle>
                             </singleInstance>
-                            <requireAdminRights>false</requireAdminRights>
+                            <requireAdminRights>true</requireAdminRights>
                             <priority>normal</priority>
                             <errTitle>${app.name} 启动错误</errTitle>
                             <messages>
