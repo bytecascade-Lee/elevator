@@ -43,7 +43,7 @@ def package_install(inno_setup_path: Path, include_jre: bool = False) -> None:
     """
     if not is_windows():
         raise OSError("build_install is only supported on Windows. "
-                       "Inno Setup installer can only be built on Windows.")
+                      "Inno Setup installer can only be built on Windows.")
 
     iss_script = BUILD_DIR / "inno" / "setup.iss"
     if not iss_script.exists():

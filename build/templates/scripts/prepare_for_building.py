@@ -134,9 +134,9 @@ def prepare_bin_for_mode(mode: str) -> None:
 
 def cleanup_temp() -> None:
     """删除临时构建目录 (temp/)。"""
-    # if TEMP_DIR.exists():
-    #     shutil.rmtree(TEMP_DIR)
-    #     log("INFO", "临时目录已清理")
+    if TEMP_DIR.exists():
+        shutil.rmtree(TEMP_DIR)
+        log("INFO", "临时目录已清理")
 
 
 if __name__ == "__main__":
