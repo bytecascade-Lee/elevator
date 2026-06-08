@@ -1,2 +1,3 @@
 -Dvmoptions.gui=
 -Dvmoptions.console=
+-Dapp.env={{MODE}}
