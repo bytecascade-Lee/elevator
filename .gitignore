@@ -13,8 +13,26 @@ target/
 ### Mac OS ###
 .DS_Store
 
-### jre ###
-build/jre/*
+### staging ###
+staging/
 
 ### dist ###
-dist
+dist/
+
+### release ###
+release/
+
+### scripts [sha-jar-deps] intermediate product ###
+jar-dependencies.txt
+
+### uv ###
+.venv/
+
+### moved file, previously located in the staging directory ###
+/build/scripts/build.py
+/build/scripts/build_install.py
+/build/scripts/build_portable.py
+/build/scripts/prepare_for_building.py
+/build/scripts/release.py
+/build/launch4j/launch4j.xml
+/build/inno/setup.iss
