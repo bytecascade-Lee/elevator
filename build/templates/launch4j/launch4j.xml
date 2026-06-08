@@ -40,6 +40,8 @@
         <mutexName>${project.name}-MutexLock</mutexName>
     </singleInstance>
 
+    <manifest>${project.basedir}\elevate.manifest</manifest>
+
     <messages>
         <startupErr>${project.name} 无法启动，请检查以下项目：
 
