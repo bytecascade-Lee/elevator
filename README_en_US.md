@@ -1,16 +1,16 @@
-# elevator
+# elevator 🛗
 
 [中文](README.md)
 
-**elevator** 🛗 is a JVM parameter updater tool that safely and atomically updates JVM startup parameters for Windows desktop applications.
+**elevator** is a lightweight JVM parameter updater for Windows desktop applications. It safely and atomically updates JVM startup parameters (`.l4j.ini` files).
 
 ## Design Rationale 💡
 
-Launch4j-packaged `.exe` files support a co-located `.l4j.ini` file to supply additional JVM arguments at startup. Modifying this file lets you tune JVM behavior — but once the app is installed to `Program Files` (via Inno Setup or similar), the directory is system-protected and **admin privileges are required** to edit `.l4j.ini`.
+Launch4j-packaged `.exe` files support a co-located `.l4j.ini` file to supply additional JVM arguments at startup. Modifying this file lets you tune JVM behavior — but once the app is installed to `Program Files`, the directory is system-protected and **admin privileges are required** to edit `.l4j.ini`.
 
-The catch: a Windows process **cannot elevate itself "in-place"** after launch. The solution is for the main app to spawn a child process running with its own admin privileges to do the update — **elevator is that child process**.
+The catch: a Windows process **cannot elevate itself "in-place"** after launch. The solution is for the main app to spawn a child process running with admin privileges to do the update — **elevator is that child process** 🎯
 
-> 🎯 Its sole job: run elevated → perform the update → exit cleanly. No daemon, no residency, no lingering.
+> Its sole job: run elevated → perform the update → exit cleanly. No daemon, no residency, no lingering.
 
 ## How It Works ⚙️
 
@@ -22,79 +22,92 @@ Update flow 🔄:
 3. Write the new content to the target INI file ✍️
 4. Automatically restore from backup on write failure, ensuring data safety 🔙🛡️
 
-## Usage
+## Installation 📥
+
+**No need to build from source.** Download the latest release from the [Releases](https://github.com/serene/elevator/releases) page.
+
+### File Layout
+
+Extract the downloaded package into your main application's installation directory:
+
+```
+<App Install Dir>/
+├── bin/
+│   ├── <YourApp>.exe          # Your main application
+│   ├── <YourApp>.l4j.ini       # Your app's JVM config
+│   └── elevator.exe            # This tool
+│   └── elevator.l4j.ini        # This tool's JVM config
+├── lib/
+│   ├── <YourApp>.jar
+│   └── elevator.jar            # This tool's JAR
+```
+
+### Critical Configuration ⚠️
+
+In `elevator.l4j.ini`, two system properties **must** be set to match your main application's name:
+
+```ini
+-Dvmoptions.gui=<YourAppName>
+-Dvmoptions.console=<YourAppName>-console
+```
+
+These tell elevator which `.l4j.ini` files to update in the target directory. For example, if your main executable is `MyApp.exe`:
+
+```ini
+-Dvmoptions.gui=MyApp
+-Dvmoptions.console=MyApp-console
+```
+
+With this configuration, when elevator receives new `.vmoptions` content, it will update `MyApp.l4j.ini` and `MyApp-console.l4j.ini` in the `bin/` directory.
+
+## Usage 🚀
+
+Your main application should launch `elevator.exe` with administrator privileges, passing two arguments:
 
 ```bash
-java -jar elevator.jar <newVmoptionsFilePath> <targetFolderPath>
+elevator.exe <newVmoptionsFilePath> <targetFolderPath>
 ```
 
 | Parameter | Description |
 |-----------|-------------|
 | `newVmoptionsFilePath` | Full path to the `new.vmoptions` file |
-| `targetFolderPath` | Path to the target folder (containing INI files) |
+| `targetFolderPath` | Path to the target folder (containing INI files, typically `bin/`) |
+
+### Example
+
+If your main app `MyApp.exe` is installed at `C:\Program Files\MyApp`, your app would call:
+
+```bash
+elevator.exe "C:\Users\user\AppData\Local\Temp\new.vmoptions" "C:\Program Files\MyApp\bin"
+```
 
 ### Exit Codes
 
 | Code | Meaning |
 |------|---------|
-| 0 | Update successful |
-| 1 | Insufficient parameters |
-| 2 | File or directory not found / not readable |
-| 3 | Update failed (backup files are in the `back/` folder) |
+| 0 ✅ | Update successful |
+| 1 ❌ | Insufficient parameters |
+| 2 ❌ | File or directory not found / not readable |
+| 3 ❌ | Update failed (backup files are in `back/`, can be restored manually) |
 
-## Build
-
-### Prerequisites
-
-- JDK 21
-- Maven
-- Python 3.13+ (build scripts)
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- [Launch4j](https://launch4j.sourceforge.net/) (EXE wrapper generator)
-- [Inno Setup](https://jrsoftware.org/isinfo.php) (optional, for installer builds)
-
-### Build Steps
-
-```bash
-# 1. Compile JAR
-mvn clean package
-
-# 2. Sync Python environment
-uv sync
-
-# 3. Package
-uv run build/scripts/release.py -p   # Portable ZIP
-uv run build/scripts/release.py -i   # Installer
-uv run build/scripts/release.py -b   # Both
-
-# Interactive mode
-uv run build/scripts/release.py
-```
-
-## Project Structure
+## Project Structure 📁
 
 ```
 src/main/java/com/serene/elevator/
 ├── Main.java              # Entry point, argument validation and dispatch
 └── JvmParamUpdater.java   # Core logic: read, backup, write, auto-restore
 
-build/
-├── scripts/               # Python packaging scripts (managed by uv)
-├── launch4j/              # Launch4j config template
-└── templates/             # Maven-filterable templates
-
-.github/workflows/
-└── release.yml            # CI/CD: automatic release on tag push
+build/scripts/             # Release packaging scripts
+.github/workflows/         # CI/CD: automatic release on tag push
 ```
 
-## Tech Stack
+## Tech Stack 🛠️
 
-- Java 21 (zero external dependencies)
-- Maven (build, template filtering, git info injection)
-- Python 3.13+ / uv (packaging scripts)
-- Launch4j (JAR to EXE wrapper)
-- Inno Setup (Windows installer)
+- **Java 21** — zero external dependencies
+- **Maven** — build
+- **Launch4j** — JAR to EXE wrapper
+- **Python 3.13+ / uv** — packaging scripts
 
-## License
+## License 📄
 
 [MIT](LICENSE) © 2026 Serene Lee
