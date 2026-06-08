@@ -1,0 +1,12 @@
+[project]
+name = "pilot"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+
+]
+
+[project.scripts]
+analyse_jdk_mods = "build.scripts.analyse_jdk_mods:main"
+build_jre = "build.scripts.build_jre:main"
+release = "build.scripts.release:main"
