@@ -1,0 +1,133 @@
+name: Build and Release
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+jobs:
+    build-jar:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   name: Install uv
+                uses: astral-sh/setup-uv@v6
+                with:
+                    version: "0.11.x"
+
+            -   name: Set up Python
+                uses: actions/setup-python@v5
+                with:
+                    python-version: '3.13'
+
+            -   name: Sync Python environment
+                run: uv sync
+
+            -   uses: actions/setup-java@v4
+                with:
+                    java-version: '21'
+                    distribution: 'temurin'
+
+            -   name: Generate dependency hash
+                id: deps-hash
+                run: |
+                    uv run build/scripts/sha_jar_dependencies.py
+                    echo "hash=$(cat jar-dependencies.sha256)" >> $GITHUB_OUTPUT
+
+            -   name: Cache Maven dependencies
+                uses: actions/cache@v4
+                with:
+                    path: ~/.m2/repository
+                    key: m2-${{ steps.deps-hash.outputs.hash }}
+
+            -   name: Build Jar with Tag Version
+                run: |
+                    mvn versions:set -DnewVersion=${{ github.ref_name }}
+                    mvn clean package
+
+            -   name: Upload Jar and Filtered Files
+                uses: actions/upload-artifact@v4
+                with:
+                    name: build-jar-output
+                    path: staging
+
+    build-windows:
+        needs: build-jar
+        runs-on: windows-latest
+        strategy:
+            matrix:
+                include_jre: [ false ]
+        steps:
+            -   uses: actions/checkout@v4
+
+            -   name: Install uv
+                uses: astral-sh/setup-uv@v6
+                with:
+                    version: "0.11.x"
+
+            -   name: Set up Python
+                uses: actions/setup-python@v5
+                with:
+                    python-version: '3.13'
+
+            -   name: Sync Python environment
+                run: uv sync
+
+            -   name: Download Jar and Filtered Scripts
+                uses: actions/download-artifact@v4
+                with:
+                    name: build-jar-output
+                    path: staging
+
+            -   name: Move Downloaded Files to Expected Locations
+                shell: pwsh
+                run: |
+                    uv run build/scripts/move_staging_files.py
+
+            -   name: Setup Launch4j
+                shell: pwsh
+                run: |
+                    curl -L -o launch4j.zip "https://github.com/lukaszlenart/launch4j/releases/download/launch4j-3.50/launch4j-3.50-win32.zip"
+                    Expand-Archive -Path launch4j.zip -DestinationPath tools/
+                    $launch4jcPath = Join-Path $env:GITHUB_WORKSPACE "tools\launch4j\launch4jc.exe"
+                    echo "LAUNCH4J_PATH=$launch4jcPath" >> $env:GITHUB_ENV
+
+            -   name: Build Windows Package
+                shell: pwsh
+                run: |
+                    $args = @(
+                        "-p"
+                        "--include-jre", "True"
+                    )
+                    uv run build/scripts/release.py @args
+
+            -   name: Upload artifacts
+                uses: actions/upload-artifact@v4
+                with:
+                    name: release-windows-${{ matrix.include_jre }}
+                    path: release/
+
+    create-release:
+        needs: [ build-windows ]
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            -   name: Download Windows artifacts
+                uses: actions/download-artifact@v4
+                with:
+                    name: release-windows-false
+                    path: release/windows-no-jre
+
+            -   name: Create Release
+                uses: softprops/action-gh-release@v1
+                with:
+                    files: |
+                        release/**/*.{zip,exe}
+                    draft: false
+                    prerelease: false
