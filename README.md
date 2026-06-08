@@ -24,7 +24,7 @@ Launch4j 打包生成的 `.exe` 支持通过同目录下的 `.l4j.ini` 文件附
 
 ## 安装 📥
 
-**无需自行构建。** 直接从 [Releases](https://github.com/serene/elevator/releases) 下载最新发布包。
+**无需自行构建。** 直接从 [Releases](https://github.com/bytecascade-Lee/elevator/releases) 下载最新发布包。
 
 ### 文件布局
 

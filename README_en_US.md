@@ -24,7 +24,7 @@ Update flow 🔄:
 
 ## Installation 📥
 
-**No need to build from source.** Download the latest release from the [Releases](https://github.com/serene/elevator/releases) page.
+**No need to build from source.** Download the latest release from the [Releases](https://github.com/bytecascade-Lee/elevator/releases) page.
 
 ### File Layout
 
