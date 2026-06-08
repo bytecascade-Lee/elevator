@@ -1,0 +1,103 @@
+# ============================================
+# Git 行为配置
+# ============================================
+
+# 自动检测文本文件，规范化换行符
+* text=auto
+
+# Java源文件
+*.java text eol=lf
+*.xml text eol=lf
+*.properties text eol=lf
+*.mf text eol=lf
+
+# Python源文件
+*.py text eol=lf
+*.ipynb text eol=lf
+*.pyi text eol=lf
+requirements.txt text eol=lf
+Pipfile text eol=lf
+Pipfile.lock text eol=lf
+*.pyd binary
+
+# Maven相关
+pom.xml text eol=lf
+mvnw.cmd text eol=crlf
+mvnw text eol=lf
+
+# 配置文件
+*.env text eol=lf
+*.env.example text eol=lf
+*.ini text eol=lf
+*.l4j.ini text eol=lf
+*.json text eol=lf
+*.manifest text eol=lf
+*.toml text eol=lf
+.vmoptions text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# 脚本文件
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
+*.sql text eol=lf
+
+# 数据文件
+*.csv text eol=lf
+*.tsv text eol=lf
+*.xls binary
+*.xlsx binary
+*.xlsm binary
+
+# 文档
+*.md text eol=lf
+LICENSE text eol=lf
+
+# 其他文本文件
+*.md5 text eol=lf
+*.sha256 text eol=lf
+
+# 其他二进制文件
+*.jar binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.svg binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+
+# git忽略文件
+.gitattributes text eol=lf
+.gitignore text eol=lf
+
+# ============================================
+# GitHub 语言统计配置 (Linguist)
+# ============================================
+
+src/main/resources/i18n/** linguist-vendored
+
+# 排除自动生成的文件
+*.log linguist-generated
+*.lock linguist-generated
+
+# 强制指定语言类型
+.vmoptions linguist-language=Java
+*.ini linguist-language=Properties
+*.iss linguist-language=Inno Setup
+*.l4j.ini linguist-language=launch4j
+*.toml linguist-language=TOML
+*.properties linguist-language=Java
+*.mf linguist-language=Java
+*.manifest linguist-language=Java
