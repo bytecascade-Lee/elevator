@@ -68,10 +68,10 @@ Your main application should launch `elevator.exe` with administrator privileges
 elevator.exe <newVmoptionsFilePath> <targetFolderPath>
 ```
 
-| Parameter | Description |
-|-----------|-------------|
-| `newVmoptionsFilePath` | Full path to the `new.vmoptions` file |
-| `targetFolderPath` | Path to the target folder (containing INI files, typically `bin/`) |
+| Parameter              | Description                                                        |
+|------------------------|--------------------------------------------------------------------|
+| `newVmoptionsFilePath` | Full path to the `new.vmoptions` file                              |
+| `targetFolderPath`     | Path to the target folder (containing INI files, typically `bin/`) |
 
 ### Example
 
@@ -83,12 +83,12 @@ elevator.exe "C:\Users\user\AppData\Local\Temp\new.vmoptions" "C:\Program Files\
 
 ### Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 ✅ | Update successful |
-| 1 ❌ | Insufficient parameters |
-| 2 ❌ | File or directory not found / not readable |
-| 3 ❌ | Update failed (backup files are in `back/`, can be restored manually) |
+| Code | Meaning                                                               |
+|------|-----------------------------------------------------------------------|
+| 0 ✅  | Update successful                                                     |
+| 1 ❌  | Insufficient parameters                                               |
+| 2 ❌  | File or directory not found / not readable                            |
+| 3 ❌  | Update failed (backup files are in `back/`, can be restored manually) |
 
 ## Project Structure 📁
 
