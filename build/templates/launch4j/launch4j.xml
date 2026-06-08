@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+    <!-- HEAD-TYPE 将会被替换为gui/console -->
+    <headerType>{{HEAD-TYPE}}</headerType>
+    <!-- APPLICATION-NAME 将会被替换为实际文件名 -->
+    <outfile>${project.basedir}/temp/{{APPLICATION-NAME}}</outfile>
+
+    <versionInfo>
+        <fileVersion>${app.version}</fileVersion>
+        <txtFileVersion>${project.version}</txtFileVersion>
+        <fileDescription>text</fileDescription>
+        <copyright>${app.copyright}</copyright>
+        <productVersion>${app.version}</productVersion>
+        <txtProductVersion>${project.version}</txtProductVersion>
+        <productName>${project.name}</productName>
+        <companyName>${app.developer.name}</companyName>
+        <internalName>${project.name}</internalName>
+        <originalFilename>{{APPLICATION-NAME}}</originalFilename>
+    </versionInfo>
+
+    <chdir>.</chdir>
+
+    <classPath>
+        <mainClass>${app.mainClass}</mainClass>
+        <cp>../lib/*.jar</cp>
+    </classPath>
+
+    <dontWrapJar>true</dontWrapJar>
+
+    <jre>
+        <path>../jre</path>
+        <requiresJdk>false</requiresJdk>
+        <requires64Bit>true</requires64Bit>
+        <minVersion>${jre.version}</minVersion>
+    </jre>
+
+    <icon>${project.basedir}/target/classes/icons/app.ico</icon>
+
+    <singleInstance>
+        <mutexName>${project.name}-MutexLock</mutexName>
+    </singleInstance>
+
+    <messages>
+        <startupErr>${project.name} 无法启动，请检查以下项目：
+
+            ✓ 需要管理员权限
+            ✓ Java 运行环境是否存在（需要 Java ${jre.version} 或更高版本）
+            ✓ 程序文件是否完整
+            ✓ 是否有足够的内存可用
+        </startupErr>
+        <jreNotFoundErr>无法找到 Java Runtime Environment，请确保位于 ../jre 下面</jreNotFoundErr>
+        <jreVersionErr>Java Runtime Environment 版本不符合要求，需要Java ${jre.version} 或更高版本</jreVersionErr>
+        <launcherErr>启动器错误</launcherErr>
+        <instanceAlreadyExistsMsg>程序已在其他地方运行</instanceAlreadyExistsMsg>
+    </messages>
+</launch4jConfig>
