@@ -11,47 +11,93 @@
     <name>elevator</name>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <jre.version>21</jre.version>
+        <maven.compiler.source>${jre.version}</maven.compiler.source>
+        <maven.compiler.target>${jre.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- 应用基础信息 -->
-        <app.name>${project.name}</app.name>
-        <app.groupId>${project.groupId}</app.groupId>
-        <app.artifactId>${project.artifactId}</app.artifactId>
         <!--suppress UnresolvedMavenProperty -->
         <app.version>${project.version}.${git.total.commit.count}</app.version>
         <app.inception.year>2026</app.inception.year>
-        <app.startClass>Main</app.startClass>
-        <app.mainClass>${app.groupId}.${app.artifactId}.Application</app.mainClass>
         <app.developer.name>Serene</app.developer.name>
-
-        <!-- 打包产物命名 -->
-        <app.executable.name>${app.artifactId}</app.executable.name>
-        <app.starter.name>elevator</app.starter.name>
-
-        <!-- 构建资源目录 -->
-        <build.dir>${project.basedir}/build</build.dir>
-        <build.icons.dir>${build.dir}/icons</build.icons.dir>
-        <build.launch4j.dir>${build.dir}/launch4j</build.launch4j.dir>
-        <build.jre.dir>${build.dir}/jre</build.jre.dir>
-
-        <!-- 构建中间物输出目录 -->
-        <config.processed.dir>${project.build.directory}/processed</config.processed.dir>
-
-        <!-- 最终发布目录 -->
-        <dist.dir>${project.basedir}/dist</dist.dir>
-        <dist.mine.jar.dir>${dist.dir}/lib</dist.mine.jar.dir>
-        <dist.jre.dir>${dist.dir}/jre</dist.jre.dir>
-        <dist.portable.zip.dir>${dist.dir}</dist.portable.zip.dir>
-
-        <!-- 运行时路径 -->
-        <runtime.jre.path>./jre</runtime.jre.path>
+        <app.copyright>l</app.copyright>
+        <!--suppress UnresolvedMavenProperty -->
+        <app.build.time>${git.build.time}</app.build.time>
+        <app.startClass>Main</app.startClass>
+        <app.mainClass>${project.groupId}.${project.artifactId}.${app.startClass}</app.mainClass>
 
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <outputDirectory>${project.basedir}/staging</outputDirectory>
+                    <finalName>${project.artifactId}-${app.version}</finalName>
+                    <archive>
+                        <manifest>
+                            <mainClass>${app.mainClass}</mainClass>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>filter-templates</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/staging</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/build/templates</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>scripts/*.py</include>
+                                        <include>inno/setup.iss</include>
+                                        <include>launch4j/launch4j.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <outputDirectory>dists/lib</outputDirectory>
+                    <includeScope>compile</includeScope>
+                    <includeScope>runtime</includeScope>
+                    <excludeScope>provided</excludeScope>
+                    <excludeArtifactIds>annotations</excludeArtifactIds>
+                    <excludeArtifactIds>jspecify</excludeArtifactIds>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- git-commit插件：获取git提交信息 -->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
@@ -71,115 +117,14 @@
                     <injectAllReactorProjects>true</injectAllReactorProjects>
                     <verbose>false</verbose>
                     <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.time$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
                         <includeOnlyProperty>^git.total.commit.count$</includeOnlyProperty>
                     </includeOnlyProperties>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <outputDirectory>${dist.mine.jar.dir}</outputDirectory>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>${app.mainClass}</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <!-- 复制jre到dist目录 -->
-                    <execution>
-                        <id>copy-jre</id>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <target>
-                                <copy todir="${dist.jre.dir}" failonerror="true">
-                                    <fileset dir="${build.jre.dir}"/>
-                                </copy>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <!-- 复制并重命名.vmoptions文件 -->
-                    <execution>
-                        <id>copy-l4j-ini</id>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <target>
-                                <copy file="${build.launch4j.dir}/.vmoptions"
-                                      tofile="${dist.dir}/${app.starter.name}.l4j.ini"/>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
-            <!-- Launch4j插件：从jar生成exe到dist -->
-            <plugin>
-                <groupId>com.akathist.maven.plugins.launch4j</groupId>
-                <artifactId>launch4j-maven-plugin</artifactId>
-                <executions>
-                    <!-- Console 版本 -->
-                    <execution>
-                        <id>launch4j-console</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>launch4j</goal>
-                        </goals>
-                        <configuration>
-                            <outfile>${dist.dir}/${app.starter.name}.exe</outfile>
-                            <headerType>console</headerType>
-                            <jar>${project.build.finalName}.jar</jar>
-                            <icon>${build.icons.dir}/app.ico</icon>
-                            <dontWrapJar>true</dontWrapJar>
-                            <chdir>./lib</chdir>
-
-                            <versionInfo>
-                                <fileVersion>${app.version}</fileVersion>
-                                <productVersion>${app.version}</productVersion>
-                                <fileDescription>${app.name}</fileDescription>
-                                <internalName>${app.artifactId}</internalName>
-                                <originalFilename>${app.starter.name}.exe</originalFilename>
-                                <productName>${app.name}</productName>
-                                <companyName>${app.artifactId}</companyName>
-                                <copyright>${app.developer.name}</copyright>
-                                <language>CHINESE_SIMPLIFIED</language>
-                            </versionInfo>
-                            <jre>
-                                <requiresJdk>false</requiresJdk>
-                                <requires64Bit>true</requires64Bit>
-                                <path>${runtime.jre.path}</path>
-                            </jre>
-                            <singleInstance>
-                                <mutexName>${app.artifactId}</mutexName>
-                                <windowTitle>${app.name}</windowTitle>
-                            </singleInstance>
-                            <requireAdminRights>true</requireAdminRights>
-                            <priority>normal</priority>
-                            <errTitle>${app.name} 启动错误</errTitle>
-                            <messages>
-                                <startupErr>无法启动 ${app.name}。</startupErr>
-                                <jreNotFoundErr>找不到 Java Runtime Environment。</jreNotFoundErr>
-                                <jreVersionErr>需要 Java ${maven.compiler.source} 版本。</jreVersionErr>
-                                <launcherErr>启动器内部错误。</launcherErr>
-                            </messages>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- clean插件：清空编译及构建产物 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -188,14 +133,15 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>${dist.dir}</directory>
+                            <directory>${project.basedir}/dist</directory>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
                         <fileset>
-                            <directory>${project.basedir}</directory>
-                            <includes>
-                                <include>dependency-reduced-pom.xml</include>
-                            </includes>
+                            <directory>${project.basedir}/staging</directory>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                        <fileset>
+                            <directory>${project.basedir}/temp</directory>
                             <followSymlinks>false</followSymlinks>
                         </fileset>
                     </filesets>
